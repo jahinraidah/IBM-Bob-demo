@@ -1,17 +1,25 @@
+import { useAuth } from './AuthContext'
+import Login from './Login'
+import { db } from './firebase'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+
 import { useState, useRef, useCallback } from 'react'
 import './App.css'
 import { ExtractorAgent } from './agents/ExtractorAgent'
 import { RiskAnalyzerAgent } from './agents/RiskAnalyzerAgent'
 import { ReportGeneratorAgent } from './agents/ReportGeneratorAgent'
-
-// ─── Main App component ────────────────────────────────────────────────────────
+import Navbar from './components/Navbar'
+import Hero from './components/Hero'
+import About from './components/About'
+import PracticeCards from './components/PracticeCards'
 
 export default function App() {
   const [file, setFile] = useState(null)
-  const [status, setStatus] = useState('idle') // idle | loading | done | error
+  const [status, setStatus] = useState('idle')
   const [report, setReport] = useState('')
   const [dragOver, setDragOver] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+const { user, loading } = useAuth()
   const inputRef = useRef(null)
 
   const handleFile = useCallback((selected) => {
@@ -31,7 +39,7 @@ export default function App() {
     [handleFile]
   )
 
-  const handleAnalyze = useCallback(async () => {
+const handleAnalyze = useCallback(async () => {
     if (!file) return
     setStatus('loading')
     setReport('')
@@ -40,32 +48,52 @@ export default function App() {
       const extracted = await ExtractorAgent(file)
       const analyzed = RiskAnalyzerAgent(extracted)
       const html = ReportGeneratorAgent(analyzed)
+
       setReport(html)
       setStatus('done')
+
+      // 🆕 Save to Firestore
+      try {
+        await addDoc(collection(db, 'analyses'), {
+          userId: user.uid,
+          userEmail: user.email,
+          filename: extracted.filename,
+          pageCount: extracted.pageCount,
+          findingsCount: analyzed.findings.length,
+          findings: analyzed.findings,
+          reportHTML: html,
+          createdAt: serverTimestamp()
+        })
+        console.log("✅ Report saved to Firestore!")
+      } catch (dbErr) {
+        console.error("❌ Firestore save failed:", dbErr)
+      }
+
     } catch (err) {
       setErrorMsg(err?.message ?? 'Unknown error')
       setStatus('error')
     }
-  }, [file])
+  }, [file, user])
+    // 1. Wait for Firebase to check if the user is logged in
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white' }}>Loading Contracty...</div>
+  }
+
+  // 2. If not logged in, show the Login screen instead of the app
+  if (!user) {
+    return <Login />
+  }
+
+  // 3. If logged in, your existing UI will render below!
 
   return (
     <div className="cg-layout">
-      <header className="cg-header">
-        <div className="cg-header-inner">
-          <div className="cg-logo">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-              <rect width="28" height="28" rx="7" fill="var(--accent)" />
-              <path d="M8 8h8.5a3.5 3.5 0 0 1 0 7H8V8Z" fill="white" fillOpacity=".9" />
-              <path d="M8 15h10a3.5 3.5 0 0 1 0 7H8v-7Z" fill="white" fillOpacity=".55" />
-              <path d="M18 11.5h1.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <span></span>
-          </div>
-          <p></p>
-        </div>
-      </header>
+      <Navbar />
+      <Hero user={user} />
+      <About />
+      <PracticeCards />
 
-      <main className="cg-main">
+      <main className="cg-main" id="tool">
         <section className="cg-upload-section">
           <h2 className="cg-section-title">Upload Your Contract</h2>
           <p className="cg-section-sub">Upload a PDF contract. Text is extracted locally — nothing leaves your browser.</p>
@@ -121,7 +149,6 @@ export default function App() {
           <h2 className="cg-section-title">Risk Report</h2>
 
           <div className="cg-report-panel">
-            {/* Terminal chrome bar */}
             <div className="cg-terminal-bar" aria-hidden="true">
               <div className="cg-terminal-dots">
                 <span /><span /><span />
@@ -169,7 +196,7 @@ export default function App() {
       </main>
 
       <footer className="cg-footer">
-        ContractGuard · Built with React
+        Contracty · Private, local contract analysis
       </footer>
     </div>
   )
