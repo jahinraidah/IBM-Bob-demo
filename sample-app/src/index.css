@@ -1,0 +1,70 @@
+
+:root {
+  /* ── Dark navy palette ── */
+  --bg:           #050b18;
+  --bg-2:         #0a1628;
+  --surface:      rgba(255, 255, 255, 0.04);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --border:       rgba(0, 217, 255, 0.14);
+  --border-soft:  rgba(255, 255, 255, 0.08);
+  --text:         #7a8fa8;
+  --text-h:       #e8f4ff;
+  --text-dim:     #4a6070;
+
+  /* ── Accent: electric cyan ── */
+  --accent:        #00d9ff;
+  --accent-2:      #0099cc;
+  --accent-bg:     rgba(0, 217, 255, 0.08);
+  --accent-border: rgba(0, 217, 255, 0.35);
+  --accent-glow:   0 0 20px rgba(0, 217, 255, 0.4), 0 0 40px rgba(0, 217, 255, 0.15);
+
+  /* ── Severity ── */
+  --risk-high:        #ff4d6d;
+  --risk-high-bg:     rgba(255, 77, 109, 0.12);
+  --risk-high-border: rgba(255, 77, 109, 0.35);
+  --risk-med:         #ffaa00;
+  --risk-med-bg:      rgba(255, 170, 0, 0.12);
+  --risk-med-border:  rgba(255, 170, 0, 0.35);
+  --risk-low:         #00d9ff;
+  --risk-low-bg:      rgba(0, 217, 255, 0.1);
+  --risk-low-border:  rgba(0, 217, 255, 0.3);
+
+  /* ── Misc ── */
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255,255,255,0.04) inset;
+  --sans:   'Baskerville Old Face', 'Baskerville', 'Palatino Linotype', Georgia, serif;
+  --mono:   'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  font: 15px/1.6 var(--sans);
+  letter-spacing: 0.1px;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  /* Full-page deep navy radial glow from top-right */
+  background-image:
+    radial-gradient(ellipse 80% 60% at 85% -10%, rgba(0, 100, 160, 0.35) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 10% 90%, rgba(0, 50, 100, 0.2) 0%, transparent 60%);
+  min-height: 100svh;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+p { margin: 0; }
