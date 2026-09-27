@@ -10,11 +10,11 @@ import { auth, googleProvider } from "./firebase"; // Adjust path if needed
 
 const AuthContext = createContext();
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext); // eslint-disable-line react-refresh/only-export-components
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
- const [loading, setLoading] = useState(false); // Temporarily forcing false
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log("AuthContext: Setting up listener...");
@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    loading,
     signInWithGoogle,
     signUpWithEmail,
     signInWithEmail,
